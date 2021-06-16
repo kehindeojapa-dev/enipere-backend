@@ -21,17 +21,32 @@ router.get("/", (req, res) => {
 //@desc add a new post
 //@access Private
 router.post("/", (req, res) => {
-  const newPost = new Post({
-    id: req.body.id,
-    Author: req.body.author,
-    Title: req.body.title,
-    Package: req.body.package,
-    Brief: req.body.brief,
+  // const newPost = new Post({
+  //   id: req.body.id,
+  //   Author: req.body.author,
+  //   Title: req.body.title,
+  //   Package: req.body.package,
+  //   Brief: req.body.brief,
+  // });
+  // newPost
+  //   .save()
+  //   .then((item) => res.status(201).send(`${item}, addition successful`))
+  //   .catch((err) => res.status(501).send(`Post addition failed, ${err}`));
+  const post = req.body;
+  console.log(post);
+});
+
+//@route POST server
+//@desc fetch a post
+//@access Public
+router.post("/post/:id", (req, res) => {
+  Post.findById({ _id: req.params.id }, (err, data) => {
+    if (!err) {
+      res.status(200).send(data);
+    } else {
+      res.status(404).send("Post not found");
+    }
   });
-  newPost
-    .save()
-    .then((item) => res.status(201).send(`${item}, addition successful`))
-    .catch((err) => res.status(501).send(`Post addition failed, ${err}`));
 });
 
 //@route DELETE server/post
@@ -42,7 +57,7 @@ router.delete("/post/:id", (req, res) => {
     if (!err) {
       res.status(200).send(`${data}, delete successful`);
     } else {
-      res.status(501).send("Item failed to delete");
+      res.status(501).send("Post failed to delete");
     }
   });
 });

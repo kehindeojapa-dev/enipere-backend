@@ -9,6 +9,11 @@ const port = process.env.PORT || 9000;
 
 // Middlewares
 app.use(express.json());
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*");
+  res.setHeader("Access-Control-Allow-Headers", "*");
+  next();
+});
 
 // DB Config
 const connection_url = "mongodb://127.0.0.1:27017/blogPostsDB";
