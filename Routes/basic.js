@@ -1,5 +1,10 @@
 import express from "express";
+import path from "path";
+import { v4 } from "uuid";
+import mammoth from "mammoth";
 
+const app = express();
+app.use(express.static("Public"));
 const router = express.Router();
 
 // Get Schema
@@ -21,19 +26,87 @@ router.get("/", (req, res) => {
 //@desc add a new post
 //@access Private
 router.post("/", (req, res) => {
-  // const newPost = new Post({
-  //   id: req.body.id,
-  //   Author: req.body.author,
-  //   Title: req.body.title,
-  //   Package: req.body.package,
-  //   Brief: req.body.brief,
-  // });
-  // newPost
-  //   .save()
-  //   .then((item) => res.status(201).send(`${item}, addition successful`))
-  //   .catch((err) => res.status(501).send(`Post addition failed, ${err}`));
-  const post = req.body;
-  console.log(post);
+  const detail = JSON.parse(req.body.details);
+  detail.mainID = v4();
+
+  const __dirname = path.resolve();
+  const url = req.protocol + "://" + req.get("host");
+
+  const doc = req.files.doc;
+  const cover = req.files.cover;
+  const image = req.files.image;
+
+  // Move doc(+cover) or images to the public folder
+  // mv() method places the file inside public directory
+  // if (doc && cover) {
+  console.log("Uploading");
+  if (doc && cover) {
+    doc.mv(`${__dirname}/Public/${detail.mainID + doc.name}`, function (err) {
+      if (err) {
+        return res.status(500).send({ msg: "Error occured" });
+      }
+    });
+
+    mammoth
+      .convertToHtml({ path: `Public/${detail.mainID + doc.name}` })
+      .then(function (result) {
+        const html = result.value;
+        const message = result.message;
+
+        const newPost = new Post({
+          id: detail.mainID,
+          Author: detail.author,
+          Title: detail.title,
+          format: detail.format,
+          Brief: detail.brief,
+          // doc: url + "/Public/" + detail.mainID + doc.name,
+          doc: html,
+          cover: url + "/" + detail.mainID + cover.name,
+          image: "",
+        });
+
+        newPost
+          .save()
+          .then((post) => res.status(201).send(`${post}, addition successful`))
+          .catch((err) => res.status(501).send(`Post addition failed, ${err}`));
+      })
+      .done();
+
+    cover.mv(
+      `${__dirname}/Public/${detail.mainID + cover.name}`,
+      function (err) {
+        if (err) {
+          return res.status(500).send({ msg: "Error occured" });
+        }
+      }
+    );
+  }
+
+  if (image) {
+    image.mv(
+      `${__dirname}/Public/${detail.mainID + image.name}`,
+      function (err) {
+        if (err) {
+          return res.status(500).send({ msg: "Error occured" });
+        }
+      }
+    );
+
+    const newPost = new Post({
+      id: detail.mainID,
+      Author: detail.author,
+      Title: detail.title,
+      format: detail.format,
+      Brief: detail.brief,
+      doc: "",
+      cover: "",
+      image: url + "/" + detail.mainID + image.name,
+    });
+    newPost
+      .save()
+      .then((post) => res.status(201).send(`${post}, addition successful`))
+      .catch((err) => res.status(501).send(`Post addition failed, ${err}`));
+  }
 });
 
 //@route POST server
