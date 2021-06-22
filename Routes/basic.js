@@ -109,10 +109,10 @@ router.post("/", (req, res) => {
   }
 });
 
-//@route POST server
+//@route GET server
 //@desc fetch a post
 //@access Public
-router.post("/post/:id", (req, res) => {
+router.get("/post/:id", (req, res) => {
   Post.findById({ _id: req.params.id }, (err, data) => {
     if (!err) {
       res.status(200).send(data);
