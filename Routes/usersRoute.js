@@ -1,4 +1,5 @@
 import express from "express";
+import bcrypt from "bcrypt";
 
 const router = express.Router();
 
@@ -23,25 +24,52 @@ router.post("/", (req, res) => {
   let { username, email, password } = req.body;
   email = email.toLowerCase();
 
-  const newUser = new User({
-    username,
-    email,
-    password,
-  });
+  let password2 = "";
+  const saltRounds = 10;
+  bcrypt.hash(password, saltRounds).then((hash) => {
+    const newUser = new User({
+      username,
+      email,
+      password: hash,
+    });
 
-  User.findOne({ email }, (err, data) => {
-    if (!err) {
-      // res.status(500).send({ msg: "Email already exist" });
-      if (data) {
-        res.status(500).send({ msg: "Email/Username already exist" });
-      } else {
-        newUser
-          .save()
-          .then((user) => res.status(201).send({ msg: `${user}, was created` }))
-          .catch((err) =>
-            res.status(500).send({ msg: "error in creating new user" })
-          );
+    User.findOne({ email }, (err, data) => {
+      if (!err) {
+        if (data) {
+          res.status(500).send({ msg: "Email/Username already exist" });
+        } else {
+          newUser
+            .save()
+            .then((user) =>
+              res.status(201).send({ msg: `${user}, was created` })
+            )
+            .catch((err) =>
+              res.status(500).send({ msg: "error in creating new user" })
+            );
+        }
       }
+    });
+  });
+});
+
+//@route POST users/login
+//@desc validate User login
+//@access Public
+router.post("/login", (req, res) => {
+  const { username, password } = req.body;
+
+  User.findOne({ username }, (err, data) => {
+    if (!err) {
+      if (data) {
+        const encryptPassword = data.password;
+        bcrypt.compare(password, encryptPassword).then((result) => {
+          if (result == true) {
+            res.status(200).send(data);
+          }
+        });
+      }
+    } else {
+      res.status(501).send({ msg: "Invalid username or password" });
     }
   });
 });
