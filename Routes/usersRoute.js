@@ -74,6 +74,21 @@ router.post("/login", (req, res) => {
   });
 });
 
+//@route GET users/userdata
+//@desc get User data
+//@access Private
+router.get("/userdata/:id", (req, res) => {
+  const userID = req.params.id;
+  User.findOne({ _id: userID }, (err, data) => {
+    if (!err) {
+      res.status(200).send(data);
+      // console.log(data);
+    } else {
+      res.status(500).send({ msg: "user data not found" });
+    }
+  });
+});
+
 //@route DELETE user
 //@desc delete a user in the server
 //@access Private

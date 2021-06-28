@@ -27,6 +27,7 @@ router.get("/", (req, res) => {
 //@access Private
 router.post("/", (req, res) => {
   const detail = JSON.parse(req.body.details);
+  const author = req.body.author;
   detail.mainID = v4();
 
   const __dirname = path.resolve();
@@ -55,7 +56,7 @@ router.post("/", (req, res) => {
 
         const newPost = new Post({
           id: detail.mainID,
-          Author: detail.author,
+          Author: author,
           Title: detail.title,
           format: detail.format,
           Brief: detail.brief,
@@ -94,7 +95,7 @@ router.post("/", (req, res) => {
 
     const newPost = new Post({
       id: detail.mainID,
-      Author: detail.author,
+      Author: author,
       Title: detail.title,
       format: detail.format,
       Brief: detail.brief,
@@ -120,6 +121,17 @@ router.get("/post/:id", (req, res) => {
       res.status(404).send("Post not found");
     }
   });
+});
+
+//@route GET server/username
+//@desc fetch posts by username
+//@access Private
+router.get("/posts/username/:id", (req, res) => {
+  const usernameID = req.params.id;
+  Post.find({ Author: usernameID })
+    .sort({ timestamp: -1 })
+    .then((posts) => res.status(200).send(posts))
+    .catch((err) => res.status(501).send({ msg: "Posts can't be fetched" }));
 });
 
 //@route DELETE server/post
