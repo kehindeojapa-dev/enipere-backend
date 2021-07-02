@@ -10,8 +10,11 @@ const postSchema = mongoose.Schema({
   },
   Brief: String,
   doc: String,
+  docPath: String,
   cover: String,
+  coverPath: String,
   image: String,
+  imagePath: String,
 });
 
 export default mongoose.model("post", postSchema);

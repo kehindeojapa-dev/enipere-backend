@@ -33,10 +33,12 @@ mongoose
 // API Routes
 import basicRoutes from "./Routes/basic.js";
 import usersRoute from "./Routes/usersRoute.js";
+import commentsRoute from "./Routes/commentRoute.js";
 // redirect (/server) requests to the routes/basic routes
 app.use("/server", basicRoutes);
-// redirect (/user) requests to the route/usersRoute routes
+// redirect (/user) requests to the routes/usersRoute routes
 app.use("/users", usersRoute);
-
+// redirect (/comment) requests to the routes/commentRoute routes
+app.use("/comments", commentsRoute);
 // Port Listen
 app.listen(port, () => console.log(`Server is listening at port ${port}`));

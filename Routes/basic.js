@@ -1,4 +1,5 @@
 import express from "express";
+import fs from "fs";
 import path from "path";
 import { v4 } from "uuid";
 import mammoth from "mammoth";
@@ -60,10 +61,12 @@ router.post("/", (req, res) => {
           Title: detail.title,
           format: detail.format,
           Brief: detail.brief,
-          // doc: url + "/Public/" + detail.mainID + doc.name,
           doc: html,
+          docPath: "Public/" + detail.mainID + doc.name,
           cover: url + "/" + detail.mainID + cover.name,
+          coverPath: "Public/" + detail.mainID + cover.name,
           image: "",
+          imagePath: "",
         });
 
         newPost
@@ -100,8 +103,11 @@ router.post("/", (req, res) => {
       format: detail.format,
       Brief: detail.brief,
       doc: "",
+      docPath: "",
       cover: "",
+      coverPath: "",
       image: url + "/" + detail.mainID + image.name,
+      imagePath: "Public/" + detail.mainID + image.name,
     });
     newPost
       .save()
@@ -138,6 +144,29 @@ router.get("/posts/username/:id", (req, res) => {
 //@desc delete a post
 //@access Private
 router.delete("/post/:id", (req, res) => {
+  Post.findById({ _id: req.params.id }, (err, data) => {
+    if (!err) {
+      if (data.docPath) {
+        fs.unlink(data.docPath, (err) => {
+          if (err) throw err;
+          console.log("doc was deleted");
+        });
+      }
+      if (data.coverPath) {
+        fs.unlink(data.coverPath, (err) => {
+          if (err) throw err;
+          console.log("cover was deleted");
+        });
+      }
+      if (data.imagePath) {
+        fs.unlink(data.imagePath, (err) => {
+          if (err) throw err;
+          console.log("image was deleted");
+        });
+      }
+      // res.send(data);
+    }
+  });
   Post.findByIdAndRemove({ _id: req.params.id }, (err, data) => {
     if (!err) {
       res.status(200).send(`${data}, delete successful`);
