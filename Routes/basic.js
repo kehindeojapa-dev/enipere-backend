@@ -129,7 +129,7 @@ router.get("/post/:id", (req, res) => {
   });
 });
 
-//@route GET server/username
+//@route GET server/posts/username
 //@desc fetch posts by username
 //@access Private
 router.get("/posts/username/:id", (req, res) => {
@@ -137,6 +137,19 @@ router.get("/posts/username/:id", (req, res) => {
   Post.find({ Author: usernameID })
     .sort({ timestamp: -1 })
     .then((posts) => res.status(200).send(posts))
+    .catch((err) => res.status(501).send({ msg: "Posts can't be fetched" }));
+});
+//@route GET server/postStatus/username
+//@desc fetch if posts was created by username
+//@access Public
+router.get("/postStatus/username/:id", (req, res) => {
+  const usernameID = req.params.id;
+  Post.find({ Author: usernameID })
+    .then((posts) => {
+      if (posts.length > 0) {
+        res.status(200).send(true);
+      }
+    })
     .catch((err) => res.status(501).send({ msg: "Posts can't be fetched" }));
 });
 
