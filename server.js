@@ -21,8 +21,9 @@ app.use(fileUpload());
 
 // DB Config
 const connection_url = "mongodb://127.0.0.1:27017/blogPostsDB";
+const connection_url2 = "mongodb+srv://kehinde:rW9NiW4qpMbpE9oh@cluster0.zna6p.mongodb.net/enipereDB?retryWrites=true&w=majority";
 mongoose
-  .connect(connection_url, {
+  .connect(connection_url2, {
     useNewUrlParser: true,
     useCreateIndex: true,
     useUnifiedTopology: true,
